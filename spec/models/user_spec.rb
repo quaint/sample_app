@@ -144,14 +144,31 @@ describe User do
     describe "success" do
       it "should sign a user in and out" do
         user = Factory(:user)
-        visit signin_path
-        fill_in :email,    :with => user.email
-        fill_in :password, :with => user.password
-        click_button
+        integration_sign_in(user)
         controller.should be_signed_in
         click_link "Sign out"
         controller.should_not be_signed_in
       end
+    end
+  end
+  
+  describe "admin attribute" do
+
+    before(:each) do
+      @user = User.create!(@attr)
+    end
+
+    it "should respond to admin" do
+      @user.should respond_to(:admin)
+    end
+
+    it "should not be an admin by default" do
+      @user.should_not be_admin
+    end
+
+    it "should be convertible to an admin" do
+      @user.toggle!(:admin)
+      @user.should be_admin
     end
   end
 end
