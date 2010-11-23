@@ -3,6 +3,7 @@ class UsersController < ApplicationController
   before_filter :authenticate, :only => [:index, :edit, :update, :destroy]
   before_filter :correct_user, :only => [:edit, :update]
   before_filter :admin_user, :only => [:destroy]
+  before_filter :deny_for_signedin, :only => [:new, :create]
   
   def index
     @title = "All users"
@@ -47,7 +48,8 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
+    user = User.find(params[:id]) 
+    user.destroy unless user == current_user 
     flash[:success] = "User destroyed."
     redirect_to users_path
   end
@@ -56,6 +58,10 @@ class UsersController < ApplicationController
 
   def authenticate
     deny_access unless signed_in?
+  end
+  
+  def deny_for_signedin
+    redirect_to(root_path) if signed_in?
   end
 
   def correct_user
